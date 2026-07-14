@@ -1,0 +1,148 @@
+:root {
+  color-scheme: light dark;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+}
+
+body {
+  margin: 0;
+  background: #f4f1ea;
+  color: #1c1c1c;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #16130f;
+    color: #ece7df;
+  }
+}
+
+.wrap {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+
+h1 {
+  margin: 0;
+  font-size: 2rem;
+  letter-spacing: -0.02em;
+}
+
+.tag {
+  margin: 0.25rem 0 1.5rem;
+  opacity: 0.7;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .card {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.card h2 {
+  margin-top: 0;
+}
+
+.phrase {
+  margin-bottom: 0;
+  padding: 0.6rem 0.9rem;
+  background: rgba(200, 120, 40, 0.14);
+  border-radius: 10px;
+}
+
+.phrase strong {
+  font-size: 1.15rem;
+  letter-spacing: 0.03em;
+}
+
+.upload {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.upload span {
+  font-weight: 600;
+}
+
+button {
+  font: inherit;
+  font-weight: 600;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 10px;
+  background: #c8783c;
+  color: white;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button.link {
+  background: none;
+  color: inherit;
+  padding: 0.4rem 0;
+  text-decoration: underline;
+  opacity: 0.75;
+}
+
+.result.pass {
+  border-color: rgba(40, 160, 90, 0.5);
+}
+
+.result.fail {
+  border-color: rgba(200, 70, 60, 0.5);
+}
+
+.badges {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.badges span {
+  font-size: 0.85rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+}
+
+.badges .ok {
+  background: rgba(40, 160, 90, 0.18);
+}
+
+.badges .no {
+  background: rgba(200, 70, 60, 0.18);
+}
+
+.matched {
+  margin: 0.5rem 0 1rem;
+  padding-left: 1.2rem;
+  opacity: 0.85;
+}
+
+.transcript {
+  white-space: pre-wrap;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.9rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+}
+
+.error {
+  border-color: rgba(200, 70, 60, 0.5);
+  color: #b3352c;
+}
