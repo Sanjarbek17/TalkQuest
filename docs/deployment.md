@@ -23,10 +23,13 @@ flowchart LR
   Config: `frontend/nginx.conf` (raises `client_max_body_size` for audio uploads and proxy
   timeouts for the slow transcribe + Claude pipeline).
 - **backend** (`talkquest_backend`) — FastAPI/uvicorn. Internal only (no host port). Fully
-  self-hosted: transcription via faster-whisper, grading via the host's **Ollama**
-  (`OLLAMA_HOST=http://host.docker.internal:11434`, model in `OLLAMA_MODEL`). **No API key needed.**
-  The downloaded Whisper model is cached in the `whisper_cache` named volume so it survives
-  rebuilds (`HF_HOME=/models`).
+  self-hosted: transcription via faster-whisper **on the GPU** (`WHISPER_DEVICE=cuda`,
+  `float16`; the container gets the GPU via a `deploy.resources` device reservation, and the
+  image ships the CUDA libs `nvidia-cublas-cu12` + `nvidia-cudnn-cu12`), grading via the host's
+  **Ollama** (`OLLAMA_HOST=http://host.docker.internal:11434`, model in `OLLAMA_MODEL`).
+  **No API key needed.** The downloaded Whisper model is cached in the `whisper_cache` named volume
+  so it survives rebuilds (`HF_HOME=/models`). VRAM budget: `small`/`medium` Whisper fits alongside
+  the 7B grader on the 8 GB RTX 5060; `large-v3` + the 7B would not.
 
 ## Public access
 

@@ -11,13 +11,14 @@
             "id": "2d5d5fdfbef7af67",
             "type": "leaf",
             "state": {
-              "type": "kanban",
+              "type": "markdown",
               "state": {
-                "file": "board.md",
-                "kanbanViewState": {}
+                "file": "Deep Dives/TalkQuest Deep Dive.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-trello",
-              "title": "board"
+              "icon": "lucide-file",
+              "title": "TalkQuest Deep Dive"
             }
           }
         ]
@@ -182,8 +183,10 @@
   },
   "active": "2d5d5fdfbef7af67",
   "lastOpenFiles": [
-    "2026-07-14.md",
     "board.md",
+    "Deep Dives/TalkQuest Deep Dive.md",
+    "Deep Dives",
+    "2026-07-14.md",
     "progress.md",
     "functional-spec.md",
     "deployment.md",

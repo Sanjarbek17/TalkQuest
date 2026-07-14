@@ -11,9 +11,21 @@ services:
       # Grading model. Override by exporting OLLAMA_MODEL or setting it in .env
       # (e.g. qwen2.5:7b-instruct). Default is the tiny model that's already pulled.
       OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:0.5b}
-      WHISPER_MODEL: ${WHISPER_MODEL:-base}
+      # Transcription on the GPU (see backend/Dockerfile for the CUDA libs).
+      # 'small' is a good accuracy/VRAM balance alongside the 7B grader on an 8 GB card;
+      # medium fits too, but large-v3 + the 7B would exceed 8 GB VRAM.
+      WHISPER_MODEL: ${WHISPER_MODEL:-small}
+      WHISPER_DEVICE: ${WHISPER_DEVICE:-cuda}
+      WHISPER_COMPUTE: ${WHISPER_COMPUTE:-float16}
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
     volumes:
       - whisper_cache:/models   # persist the downloaded Whisper model across rebuilds
 

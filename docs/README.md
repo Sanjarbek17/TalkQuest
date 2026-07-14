@@ -11,6 +11,7 @@ tooling needed. Open this `docs/` folder as an Obsidian vault to browse with `[[
 - [[decisions]] — running log of key product & technical decisions
 - [[progress]] — what's done / in progress / next
 - [[deployment]] — how TalkQuest runs on the school host + CI/CD
+- [[TalkQuest Deep Dive]] — rich walkthrough of the system + this session's changes (in `Deep Dives/`)
 
 ## Conventions
 

@@ -4,6 +4,9 @@ Running log of key product & technical decisions for TalkQuest. Newest first.
 
 > Format: `YYYY-MM-DD — Decision — short rationale`
 
+## 2026-07-14 (performance)
+- **Whisper transcription moved to the GPU (RTX 5060, 8 GB).** — `transcribe.py` device/compute are now env-configurable (`WHISPER_DEVICE`/`WHISPER_COMPUTE`), defaulting to CPU/int8 locally and set to cuda/float16 on the server. The backend container gets the GPU via a `deploy.resources` device reservation; the image adds `nvidia-cublas-cu12` + `nvidia-cudnn-cu12` (with `LD_LIBRARY_PATH`) so CTranslate2 finds CUDA. Verified faster-whisper runs on the Blackwell card before committing. Default model bumped `base` → `small` (GPU makes it cheap). VRAM note: `small`/`medium` fit alongside the 7B Ollama grader; `large-v3` + 7B would exceed 8 GB. `backend/app/transcribe.py`, `backend/Dockerfile`, `docker-compose.yml`.
+
 ## 2026-07-14 (UX / MVP scope)
 - **In-browser recording (MediaRecorder), replacing file upload as the primary flow.** — Users hit Record → speak → Stop → preview playback → Submit, no separate recording app. File upload kept as a fallback (mic denied / unsupported browser, e.g. old Safari). Recorded audio is a WebM/Opus (or MP4 on Safari) blob; the backend's ffmpeg decodes it unchanged. Needs a secure context — provided by Cloudflare HTTPS. `frontend/src/App.jsx`.
 - **Evaluation shows an estimated "time left" + progress bar.** — Server processing time isn't known up front (depends on clip length + model warmth), so the bar/countdown is an estimate from the clip duration, degrading to "Finishing up…" on overrun. Honest signal beats a bare spinner. `frontend/src/App.jsx`.
