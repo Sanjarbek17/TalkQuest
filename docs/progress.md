@@ -3,6 +3,8 @@
 Where the build stands. Update as things move.
 
 ## Now
+- [x] In-browser recording added — Record → preview → Submit (file upload kept as fallback), plus an
+  estimated "time left" progress bar during evaluation. `frontend/src/App.jsx`. See [[decisions]].
 - [x] End-to-end runtime check **done** — the deployed stack was exercised live (uploaded a real
   clip, confirmed transcript → anti-cheat → grade → pass/fail + feedback). App is live in production.
 

@@ -1,40 +1,173 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getTodaysChallenge, submitAudio } from "./api";
+
+// First MIME the browser can actually record. Safari only does mp4; Chrome/FF do webm/opus.
+const MIME_CANDIDATES = [
+  { type: "audio/webm;codecs=opus", ext: "webm" },
+  { type: "audio/webm", ext: "webm" },
+  { type: "audio/mp4", ext: "mp4" },
+];
+
+function pickMime() {
+  if (typeof MediaRecorder === "undefined") return null;
+  return MIME_CANDIDATES.find((c) => MediaRecorder.isTypeSupported(c.type)) ?? null;
+}
+
+// Estimate how long the transcribe + grade round-trip will take, from the clip length.
+function estimateSeconds(audioSeconds) {
+  const secs = audioSeconds > 0 ? audioSeconds : 30;
+  return Math.min(90, Math.max(12, Math.round(8 + 0.8 * secs)));
+}
 
 export default function App() {
   const [challenge, setChallenge] = useState(null);
-  const [file, setFile] = useState(null);
+  const [error, setError] = useState(null);
+
+  // Recording flow: "idle" -> "recording" -> "recorded"
+  const [recState, setRecState] = useState("idle");
+  const [recSeconds, setRecSeconds] = useState(0);
+  const [recordedFile, setRecordedFile] = useState(null);
+  const [audioSeconds, setAudioSeconds] = useState(0);
+  const [previewUrl, setPreviewUrl] = useState(null);
+
+  // Evaluation flow
   const [loading, setLoading] = useState(false);
   const [elapsed, setElapsed] = useState(0);
+  const [estTotal, setEstTotal] = useState(30);
   const [result, setResult] = useState(null);
-  const [error, setError] = useState(null);
+
+  const recorderRef = useRef(null);
+  const streamRef = useRef(null);
+  const chunksRef = useRef([]);
+  const recSecondsRef = useRef(0); // mirrors recSeconds for the onstop closure
 
   useEffect(() => {
     getTodaysChallenge().then(setChallenge).catch((e) => setError(e.message));
   }, []);
 
-  // Count up while evaluating so the wait (transcribe + grade, ~20-40s) feels alive.
+  // Tick the recording timer (also mirror to a ref for the onstop closure).
+  useEffect(() => {
+    if (recState !== "recording") return;
+    const id = setInterval(
+      () => setRecSeconds((s) => ((recSecondsRef.current = s + 1), s + 1)),
+      1000
+    );
+    return () => clearInterval(id);
+  }, [recState]);
+
+  // Tick the evaluation progress.
   useEffect(() => {
     if (!loading) return;
     setElapsed(0);
-    const id = setInterval(() => setElapsed((s) => s + 1), 1000);
+    const id = setInterval(() => setElapsed((s) => s + 0.5), 500);
     return () => clearInterval(id);
   }, [loading]);
 
-  async function onSubmit(e) {
-    e.preventDefault();
+  // Clean up stream + object URL on unmount.
+  useEffect(() => {
+    return () => {
+      stopStream();
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function stopStream() {
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+  }
+
+  function resetToIdle() {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(null);
+    setRecordedFile(null);
+    setAudioSeconds(0);
+    setRecSeconds(0);
+    setResult(null);
+    setError(null);
+    setRecState("idle");
+  }
+
+  async function startRecording() {
+    setError(null);
+    setResult(null);
+    const mime = pickMime();
+    if (!mime) {
+      setError("Recording isn't supported in this browser — upload a file instead.");
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      chunksRef.current = [];
+      const rec = new MediaRecorder(stream, { mimeType: mime.type });
+      rec.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
+      };
+      rec.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: mime.type });
+        const file = new File([blob], `recording.${mime.ext}`, { type: mime.type });
+        const url = URL.createObjectURL(blob);
+        setRecordedFile(file);
+        setPreviewUrl(url);
+        setAudioSeconds(recSecondsRef.current);
+        setRecState("recorded");
+        stopStream();
+      };
+      recorderRef.current = rec;
+      setRecSeconds(0);
+      recSecondsRef.current = 0;
+      rec.start();
+      setRecState("recording");
+    } catch (e) {
+      stopStream();
+      setError(
+        e?.name === "NotAllowedError"
+          ? "Microphone permission was denied — allow it, or upload a file instead."
+          : `Couldn't start recording (${e?.name || e}). Try uploading a file instead.`
+      );
+    }
+  }
+
+  function stopRecording() {
+    recorderRef.current?.stop();
+  }
+
+  // Upload fallback — read duration from metadata, then converge on the preview flow.
+  function onPickFile(e) {
+    const file = e.target.files?.[0] ?? null;
     if (!file) return;
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    const url = URL.createObjectURL(file);
+    setRecordedFile(file);
+    setPreviewUrl(url);
+    setResult(null);
+    setError(null);
+    const probe = new Audio();
+    probe.preload = "metadata";
+    probe.onloadedmetadata = () =>
+      setAudioSeconds(Number.isFinite(probe.duration) ? probe.duration : 0);
+    probe.src = url;
+    setRecState("recorded");
+  }
+
+  async function onSubmit() {
+    if (!recordedFile) return;
+    setEstTotal(estimateSeconds(audioSeconds));
     setLoading(true);
     setError(null);
     setResult(null);
     try {
-      setResult(await submitAudio(file));
+      setResult(await submitAudio(recordedFile));
     } catch (e) {
       setError(e.message);
     } finally {
       setLoading(false);
     }
   }
+
+  const remaining = Math.max(0, Math.ceil(estTotal - elapsed));
+  const progress = Math.min(97, (elapsed / estTotal) * 100);
 
   return (
     <main className="wrap">
@@ -50,22 +183,57 @@ export default function App() {
         </section>
       )}
 
-      <form className="card" onSubmit={onSubmit}>
-        <label className="upload">
-          <span>Upload your recording</span>
-          <input
-            type="file"
-            accept="audio/*"
-            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-          />
-        </label>
-        <button type="submit" disabled={!file || loading}>
-          {loading ? `Evaluating… ${elapsed}s` : "Submit"}
-        </button>
-        {loading && (
-          <p className="hint">Usually ~20–40s — transcribing, then grading.</p>
+      <section className="card recorder">
+        {recState === "idle" && (
+          <>
+            <button type="button" onClick={startRecording} disabled={loading}>
+              🎙️ Record
+            </button>
+            <label className="upload-fallback">
+              or{" "}
+              <span className="link-like">upload a file</span>
+              <input type="file" accept="audio/*" onChange={onPickFile} disabled={loading} />
+            </label>
+          </>
         )}
-      </form>
+
+        {recState === "recording" && (
+          <>
+            <p className="rec-status">
+              <span className="rec-dot" /> Recording… {recSeconds}s
+            </p>
+            <button type="button" onClick={stopRecording}>
+              ⏹ Stop
+            </button>
+          </>
+        )}
+
+        {recState === "recorded" && (
+          <>
+            {previewUrl && <audio className="preview" controls src={previewUrl} />}
+            <div className="rec-actions">
+              <button type="button" onClick={onSubmit} disabled={loading}>
+                {loading ? "Evaluating…" : "Submit"}
+              </button>
+              <button type="button" className="secondary" onClick={resetToIdle} disabled={loading}>
+                Re-record
+              </button>
+            </div>
+          </>
+        )}
+
+        {loading && (
+          <div className="progress-wrap">
+            <div className="progress">
+              <div className="bar" style={{ width: `${progress}%` }} />
+            </div>
+            <p className="hint">
+              {remaining > 0 ? `Evaluating… ~${remaining}s left` : "Finishing up…"} · transcribing,
+              then grading
+            </p>
+          </div>
+        )}
+      </section>
 
       {result && (
         <section className={`card result ${result.passed ? "pass" : "fail"}`}>

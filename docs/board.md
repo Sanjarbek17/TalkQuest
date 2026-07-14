@@ -37,6 +37,7 @@ kanban-plugin: board
 - [x] React frontend (challenge view, upload, result card) — `frontend/`
 - [x] Deploy to school server — **live at https://talkquest.bhgroup.uz**: Docker Compose stack (backend + nginx), Cloudflare Tunnel, fully self-hosted (Ollama grading), manual `deploy.sh` ([[deployment]])
 - [x] End-to-end runtime verification — confirmed the full loop live (audio → transcript → anti-cheat → Ollama eval → pass/fail + feedback) ([[progress]])
+- [x] In-browser recording (MediaRecorder) with preview + estimated eval progress bar; file upload kept as fallback ([[decisions]])
 
 
 %% kanban:settings

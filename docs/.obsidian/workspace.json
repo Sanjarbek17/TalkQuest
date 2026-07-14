@@ -11,14 +11,13 @@
             "id": "2d5d5fdfbef7af67",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "kanban",
               "state": {
-                "file": "deployment.md",
-                "mode": "source",
-                "source": false
+                "file": "board.md",
+                "kanbanViewState": {}
               },
-              "icon": "lucide-file",
-              "title": "deployment"
+              "icon": "lucide-trello",
+              "title": "board"
             }
           }
         ]
@@ -183,13 +182,13 @@
   },
   "active": "2d5d5fdfbef7af67",
   "lastOpenFiles": [
-    "decisions.md",
+    "2026-07-14.md",
     "board.md",
-    "deployment.md",
-    "functional-spec.md",
     "progress.md",
+    "functional-spec.md",
+    "deployment.md",
+    "decisions.md",
     "README.md",
-    "Untitled.canvas",
-    "2026-07-14.md"
+    "Untitled.canvas"
   ]
 }
