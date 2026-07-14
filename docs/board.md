@@ -16,7 +16,6 @@ kanban-plugin: board
 
 ## To Do
 
-- [ ] End-to-end runtime verification (record clip, run backend+frontend, confirm loop) ([[progress]])
 - [ ] Author the remaining 4 challenge-type rubric shapes ([[functional-spec]] §3)
 
 
@@ -36,7 +35,8 @@ kanban-plugin: board
 - [x] LLM rubric evaluation — strict JSON via Claude — `backend/app/evaluate.py` ([[functional-spec]] §6)
 - [x] Submission pipeline + routes — `backend/app/main.py`
 - [x] React frontend (challenge view, upload, result card) — `frontend/`
-- [x] Deploy to school server + CI/CD — Docker Compose stack (backend + nginx), Cloudflare Tunnel (`talkquest.bhgroup.uz`), self-hosted GitHub Actions runner ([[deployment]])
+- [x] Deploy to school server — **live at https://talkquest.bhgroup.uz**: Docker Compose stack (backend + nginx), Cloudflare Tunnel, fully self-hosted (Ollama grading), manual `deploy.sh` ([[deployment]])
+- [x] End-to-end runtime verification — confirmed the full loop live (audio → transcript → anti-cheat → Ollama eval → pass/fail + feedback) ([[progress]])
 
 
 %% kanban:settings

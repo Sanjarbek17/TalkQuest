@@ -34,15 +34,23 @@ Public HTTPS is served by **Cloudflare Tunnel** (`/etc/cloudflared/config.yaml`)
 nginx. An ingress route maps `talkquest.bhgroup.uz` → `http://localhost:8118`; TLS is terminated at
 Cloudflare's edge.
 
-## CI/CD (GitHub Actions)
+## Deploy (manual)
 
-Workflow: `.github/workflows/deploy.yml`.
+GitHub-hosted Actions are unavailable (account billing), and the box is campus-only / firewalled
+(no inbound webhooks), so deploys are **manual** via a script on the box: `deploy.sh`.
 
-- **`ci`** (`ubuntu-latest`) — builds the frontend and byte-compiles the backend on every push/PR.
-- **`deploy`** (self-hosted runner, labels `self-hosted, talkquest`) — runs only on `main`. The box
-  is campus-only / firewalled, so GitHub-hosted runners can't reach it; a self-hosted runner on the
-  box pulls jobs (outbound to GitHub). It runs, in `~/dev/TalkQuest`:
-  `git reset --hard origin/main` → `docker compose up -d --build` → `docker image prune -f`.
+After pushing to `main`, redeploy with:
+
+```bash
+ssh school "~/dev/TalkQuest/deploy.sh"
+```
+
+`deploy.sh` does: `git fetch` + `git reset --hard origin/main` → `docker compose build`
+(a failed build stops here, leaving the running stack untouched) → `docker compose up -d`
+→ `docker image prune -f`.
+
+If automation is wanted later, the firewall-friendly options are a cron/systemd-timer poll on the
+box, or a self-hosted GitHub Actions runner (free, not subject to hosted-runner spending limits).
 
 ## One-time server setup
 
@@ -52,8 +60,13 @@ Workflow: `.github/workflows/deploy.yml`.
 3. Install the self-hosted runner in `~/actions-runner` (`./config.sh --url .../TalkQuest
    --token <REG_TOKEN> --labels talkquest`), then `sudo ./svc.sh install bhgroup && sudo ./svc.sh start`.
 4. Add the Cloudflare ingress route for `talkquest.bhgroup.uz` → `http://localhost:8118` in
-   `/etc/cloudflared/config.yaml`, add the DNS route, and `sudo systemctl restart cloudflared`.
-5. First deploy: `cd ~/dev/TalkQuest && docker compose up -d --build` (or push to `main`).
+   `/etc/cloudflared/config.yaml` (above the `http_status:404` catch-all), add the DNS route
+   (`cloudflared tunnel route dns f33924fe-… talkquest.bhgroup.uz`), and
+   `sudo systemctl restart cloudflared`. **Note:** the `school` SSH host tunnels through cloudflared,
+   so restarting it drops your SSH session momentarily — it reconnects once the service is back.
+5. First deploy: `cd ~/dev/TalkQuest && docker compose up -d --build`. Thereafter use `deploy.sh`.
+
+This setup is already live at **https://talkquest.bhgroup.uz** (deployed 2026-07-14).
 
 ## Related
 
