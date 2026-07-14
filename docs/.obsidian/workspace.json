@@ -11,21 +11,14 @@
             "id": "2d5d5fdfbef7af67",
             "type": "leaf",
             "state": {
-              "type": "kanban",
+              "type": "markdown",
               "state": {
-                "file": "board.md",
-                "kanbanViewState": {
-                  "kanban-plugin": "board",
-                  "list-collapse": [
-                    false,
-                    false,
-                    false,
-                    false
-                  ]
-                }
+                "file": "decisions.md",
+                "mode": "source",
+                "source": false
               },
-              "icon": "lucide-trello",
-              "title": "board"
+              "icon": "lucide-file",
+              "title": "decisions"
             }
           }
         ]
@@ -188,12 +181,12 @@
       "obsidian-kanban:Create new board": false
     }
   },
-  "active": "b40acbd3b4586c26",
+  "active": "2d5d5fdfbef7af67",
   "lastOpenFiles": [
+    "board.md",
     "deployment.md",
     "functional-spec.md",
     "decisions.md",
-    "board.md",
     "progress.md",
     "README.md",
     "Untitled.canvas",

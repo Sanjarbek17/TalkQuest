@@ -22,9 +22,11 @@ flowchart LR
   static `dist/` and reverse-proxies `/api` → `backend:8000`. Published as `8118:80`.
   Config: `frontend/nginx.conf` (raises `client_max_body_size` for audio uploads and proxy
   timeouts for the slow transcribe + Claude pipeline).
-- **backend** (`talkquest_backend`) — FastAPI/uvicorn. Internal only (no host port). Reads the
-  server-side `.env` (`ANTHROPIC_API_KEY`, optional `WHISPER_MODEL`). The downloaded Whisper model
-  is cached in the `whisper_cache` named volume so it survives rebuilds (`HF_HOME=/models`).
+- **backend** (`talkquest_backend`) — FastAPI/uvicorn. Internal only (no host port). Fully
+  self-hosted: transcription via faster-whisper, grading via the host's **Ollama**
+  (`OLLAMA_HOST=http://host.docker.internal:11434`, model in `OLLAMA_MODEL`). **No API key needed.**
+  The downloaded Whisper model is cached in the `whisper_cache` named volume so it survives
+  rebuilds (`HF_HOME=/models`).
 
 ## Public access
 
@@ -45,7 +47,8 @@ Workflow: `.github/workflows/deploy.yml`.
 ## One-time server setup
 
 1. `git clone <repo> ~/dev/TalkQuest`
-2. Create `~/dev/TalkQuest/.env` from `.env.example` and fill in `ANTHROPIC_API_KEY`.
+2. Pull a grading model in Ollama and (optionally) set it: `ollama pull qwen2.5:7b-instruct`,
+   then `echo 'OLLAMA_MODEL=qwen2.5:7b-instruct' > ~/dev/TalkQuest/.env`. No secrets/API keys needed.
 3. Install the self-hosted runner in `~/actions-runner` (`./config.sh --url .../TalkQuest
    --token <REG_TOKEN> --labels talkquest`), then `sudo ./svc.sh install bhgroup && sudo ./svc.sh start`.
 4. Add the Cloudflare ingress route for `talkquest.bhgroup.uz` → `http://localhost:8118` in

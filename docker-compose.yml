@@ -4,9 +4,16 @@ services:
     image: sanjarbek1718/talkquest-backend:latest
     container_name: talkquest_backend
     restart: always
-    env_file: .env              # ANTHROPIC_API_KEY, optional WHISPER_MODEL
     environment:
       HF_HOME: /models
+      # Reach the host's Ollama (published on localhost:11434) from inside the container.
+      OLLAMA_HOST: http://host.docker.internal:11434
+      # Grading model. Override by exporting OLLAMA_MODEL or setting it in .env
+      # (e.g. qwen2.5:7b-instruct). Default is the tiny model that's already pulled.
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:0.5b}
+      WHISPER_MODEL: ${WHISPER_MODEL:-base}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - whisper_cache:/models   # persist the downloaded Whisper model across rebuilds
 
