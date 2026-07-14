@@ -1,0 +1,24 @@
+services:
+  backend:
+    build: ./backend
+    image: sanjarbek1718/talkquest-backend:latest
+    container_name: talkquest_backend
+    restart: always
+    env_file: .env              # ANTHROPIC_API_KEY, optional WHISPER_MODEL
+    environment:
+      HF_HOME: /models
+    volumes:
+      - whisper_cache:/models   # persist the downloaded Whisper model across rebuilds
+
+  web:
+    build: ./frontend
+    image: sanjarbek1718/talkquest-web:latest
+    container_name: talkquest_web
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "8118:80"               # Cloudflare Tunnel routes talkquest.bhgroup.uz here
+
+volumes:
+  whisper_cache:

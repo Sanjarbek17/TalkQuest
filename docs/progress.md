@@ -12,6 +12,10 @@ Where the build stands. Update as things move.
 - [ ] Add the deferred anti-cheat layers: timestamp (§5.2), voice consistency (§5.4)
 
 ## Done
+- [x] 2026-07-14 — Deployment + CI/CD set up: Docker Compose stack (FastAPI backend + nginx
+  serving the built frontend and proxying `/api`), targeting the school Docker host at
+  `talkquest.bhgroup.uz` via Cloudflare Tunnel. GitHub Actions builds/checks on push and
+  redeploys to `main` through a self-hosted runner on the box. See [[deployment]].
 - [x] 2026-07-14 — Functional spec written and moved into the `docs/` vault ([[functional-spec]])
 - [x] 2026-07-14 — MVP thin vertical slice implemented: FastAPI backend (`backend/`) with the
   full pipeline (schema → whisper transcribe → code-phrase + topic anti-cheat → Claude rubric

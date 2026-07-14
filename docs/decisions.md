@@ -4,6 +4,12 @@ Running log of key product & technical decisions for TalkQuest. Newest first.
 
 > Format: `YYYY-MM-DD — Decision — short rationale`
 
+## 2026-07-14 (deployment)
+- **Deploy as a single Docker Compose stack on the school Docker host (`~/dev/TalkQuest/`).** — Matches the box's existing per-project convention (`~/dev/<name>/docker-compose.yml`, unique host port). App published on port `8118`. See [[deployment]].
+- **Serve same-origin via a containerized nginx (frontend static + `/api` reverse-proxy).** — The frontend calls relative `/api/*`, so no build-time API URL is needed; nginx routes `/api` to the backend container. Also raises `client_max_body_size` (audio) and proxy timeouts (slow Whisper+Claude pipeline).
+- **Public HTTPS via Cloudflare Tunnel, not host nginx.** — The box has no host nginx; the existing tunnel terminates TLS at Cloudflare's edge and maps `talkquest.bhgroup.uz` → `localhost:8118`.
+- **CI/CD: GitHub Actions with a self-hosted runner on the box.** — The box is campus-only / firewalled, so GitHub-hosted runners can't SSH in. CI (build/check) runs on `ubuntu-latest`; deploy runs on the self-hosted runner (`git reset --hard` + `docker compose up -d --build`) on push to `main`. Secrets (`ANTHROPIC_API_KEY`) live in a manual server-side `.env`.
+
 ## 2026-07-14 (build kickoff)
 - **MVP stack: Web app · FastAPI + React (Vite) · self-hosted `faster-whisper` · Claude `claude-opus-4-8` for rubric eval.** — Fast for a solo dev; Whisper runs in-process (no separate STT server) for the slice; rubric eval uses structured JSON output so "completed" is a checklist, not a vibe ([[functional-spec]] §6).
 - **First build = thin vertical slice, one hardcoded challenge, no auth/DB/streaks.** — Prove the core loop end-to-end before adding breadth. Deferred items tracked on [[board]].

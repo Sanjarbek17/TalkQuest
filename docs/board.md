@@ -36,6 +36,7 @@ kanban-plugin: board
 - [x] LLM rubric evaluation — strict JSON via Claude — `backend/app/evaluate.py` ([[functional-spec]] §6)
 - [x] Submission pipeline + routes — `backend/app/main.py`
 - [x] React frontend (challenge view, upload, result card) — `frontend/`
+- [x] Deploy to school server + CI/CD — Docker Compose stack (backend + nginx), Cloudflare Tunnel (`talkquest.bhgroup.uz`), self-hosted GitHub Actions runner ([[deployment]])
 
 
 %% kanban:settings

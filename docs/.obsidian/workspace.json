@@ -188,8 +188,9 @@
       "obsidian-kanban:Create new board": false
     }
   },
-  "active": "2d5d5fdfbef7af67",
+  "active": "b40acbd3b4586c26",
   "lastOpenFiles": [
+    "deployment.md",
     "functional-spec.md",
     "decisions.md",
     "board.md",

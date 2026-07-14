@@ -10,6 +10,7 @@ tooling needed. Open this `docs/` folder as an Obsidian vault to browse with `[[
 - [[board]] — Trello-like Kanban board: Backlog / To Do / In Progress / Done
 - [[decisions]] — running log of key product & technical decisions
 - [[progress]] — what's done / in progress / next
+- [[deployment]] — how TalkQuest runs on the school host + CI/CD
 
 ## Conventions
 
