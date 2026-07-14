@@ -5,13 +5,21 @@ export default function App() {
   const [challenge, setChallenge] = useState(null);
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [elapsed, setElapsed] = useState(0);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
-  const [showTranscript, setShowTranscript] = useState(false);
 
   useEffect(() => {
     getTodaysChallenge().then(setChallenge).catch((e) => setError(e.message));
   }, []);
+
+  // Count up while evaluating so the wait (transcribe + grade, ~20-40s) feels alive.
+  useEffect(() => {
+    if (!loading) return;
+    setElapsed(0);
+    const id = setInterval(() => setElapsed((s) => s + 1), 1000);
+    return () => clearInterval(id);
+  }, [loading]);
 
   async function onSubmit(e) {
     e.preventDefault();
@@ -39,9 +47,6 @@ export default function App() {
         <section className="card">
           <h2>{challenge.topic}</h2>
           <p>{challenge.instructions}</p>
-          <p className="phrase">
-            Code phrase to say out loud: <strong>{challenge.code_phrase}</strong>
-          </p>
         </section>
       )}
 
@@ -55,8 +60,11 @@ export default function App() {
           />
         </label>
         <button type="submit" disabled={!file || loading}>
-          {loading ? "Evaluating…" : "Submit"}
+          {loading ? `Evaluating… ${elapsed}s` : "Submit"}
         </button>
+        {loading && (
+          <p className="hint">Usually ~20–40s — transcribing, then grading.</p>
+        )}
       </form>
 
       {result && (
@@ -64,9 +72,6 @@ export default function App() {
           <h2>{result.passed ? "✅ Passed" : "❌ Not yet"}</h2>
 
           <div className="badges">
-            <span className={result.checks.code_phrase_ok ? "ok" : "no"}>
-              {result.checks.code_phrase_ok ? "✓" : "✗"} code phrase
-            </span>
             <span className={result.checks.topic_ok ? "ok" : "no"}>
               {result.checks.topic_ok ? "✓" : "✗"} on topic
             </span>
@@ -83,14 +88,8 @@ export default function App() {
             </ul>
           )}
 
-          <button
-            type="button"
-            className="link"
-            onClick={() => setShowTranscript((v) => !v)}
-          >
-            {showTranscript ? "Hide" : "Show"} transcript
-          </button>
-          {showTranscript && <pre className="transcript">{result.transcript}</pre>}
+          <h3 className="transcript-heading">Transcript</h3>
+          <pre className="transcript">{result.transcript}</pre>
         </section>
       )}
     </main>

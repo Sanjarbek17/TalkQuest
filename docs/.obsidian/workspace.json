@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "decisions.md",
+                "file": "deployment.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "decisions"
+              "title": "deployment"
             }
           }
         ]
@@ -183,10 +183,10 @@
   },
   "active": "2d5d5fdfbef7af67",
   "lastOpenFiles": [
+    "decisions.md",
     "board.md",
     "deployment.md",
     "functional-spec.md",
-    "decisions.md",
     "progress.md",
     "README.md",
     "Untitled.canvas",

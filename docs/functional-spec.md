@@ -5,6 +5,10 @@ A daily English-speaking challenge app. Users get **one challenge per day**. The
 
 No bots in Discord. No live AI conversation partner in v1. No matchmaking in v1.
 
+> **MVP deviation (2026-07-14):** the deployed slice simplifies the task to **solo speaking** — the
+> user records themselves speaking on the prompt; no Discord conversation with another person is
+> required. The partner-conversation concept above remains the product direction. See [[decisions]].
+
 ---
 
 ## 2. User Flow (MVP)
@@ -62,7 +66,7 @@ The rubric is what the AI evaluation step checks against — "completed" is neve
 
 Since recording is fully self-managed (no bot, no supervision), trust is the biggest risk. Layered, cheap-first approach:
 
-1. **Code phrase** — each day's challenge screen shows a random word/phrase the user must say somewhere in their recording (e.g. "say the word 'lantern' at some point"). Transcript must contain it. This is the primary defense — cheap and effective against reused/old recordings.
+1. **Code phrase** — each day's challenge screen shows a random word/phrase the user must say somewhere in their recording (e.g. "say the word 'lantern' at some point"). Transcript must contain it. This is the primary defense — cheap and effective against reused/old recordings. **MVP deviation (2026-07-14): dropped** — removed as friction for the solo-speaking MVP; topic match (§5.3) is now the only cheap anti-cheat layer. See [[decisions]].
 2. **Timestamp check** — reject uploads with metadata timestamps earlier than the challenge's release time.
 3. **Topic-match check** — transcript must relate to `required_topic_keywords`; auto-reject/flag if unrelated.
 4. **Voice consistency (soft check)** — light voice-fingerprint comparison across a user's past submissions; flag (don't auto-block) big mismatches for manual/spot review.

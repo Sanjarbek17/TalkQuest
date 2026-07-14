@@ -19,7 +19,6 @@ class Challenge(BaseModel):
     type: str
     topic: str
     instructions: str
-    code_phrase: str
     rubric: Rubric
 
 
@@ -30,7 +29,6 @@ class ChallengePublic(BaseModel):
     type: str
     topic: str
     instructions: str
-    code_phrase: str
 
     @classmethod
     def from_challenge(cls, c: Challenge) -> "ChallengePublic":
@@ -39,12 +37,10 @@ class ChallengePublic(BaseModel):
             type=c.type,
             topic=c.topic,
             instructions=c.instructions,
-            code_phrase=c.code_phrase,
         )
 
 
 class Checks(BaseModel):
-    code_phrase_ok: bool
     topic_ok: bool
 
 

@@ -12,11 +12,9 @@ TODAYS_CHALLENGE = Challenge(
     type="prompt_response",
     topic="What you did last weekend",
     instructions=(
-        "Have a real spoken conversation on Discord about what you did last weekend, "
-        "record yourself, and upload the audio. Speak for at least 30 seconds. "
-        "Somewhere in your recording, say the code phrase below out loud."
+        "Record yourself speaking about what you did last weekend and upload the audio. "
+        "Speak naturally in full sentences for at least 30 seconds."
     ),
-    code_phrase="lantern",
     rubric=Rubric(
         required_topic_keywords=[
             "weekend",

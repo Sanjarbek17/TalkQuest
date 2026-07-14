@@ -4,6 +4,11 @@ Running log of key product & technical decisions for TalkQuest. Newest first.
 
 > Format: `YYYY-MM-DD — Decision — short rationale`
 
+## 2026-07-14 (UX / MVP scope)
+- **MVP task simplified to solo speaking.** — The challenge now asks the user to record themselves speaking on the prompt; no Discord conversation with another person is required. Deviates from [[functional-spec]] §1/§10 (partner conversation stays the product direction). `backend/app/challenges.py`.
+- **Code-phrase anti-cheat removed.** — Dropped the "say a magic word" requirement (friction for solo speaking); supersedes [[functional-spec]] §5.1. Topic match (§5.3) is now the only cheap anti-cheat layer. Removed from `schemas.py`, `anticheat.py`, `main.py`, `challenges.py`, and the UI.
+- **Transcript shown by default; evaluating shows an elapsed timer + estimate.** — The Whisper transcript now renders inline in the result (was hidden behind a toggle), and the submit button counts up (`Evaluating… Ns`) with a "usually ~20–40s" hint, since a real submit takes ~13–35s. `frontend/src/App.jsx`.
+
 ## 2026-07-14 (deployment)
 - **Rubric eval switched from Claude to a local LLM via the box's Ollama.** — Removes the external API key/cost; the whole pipeline (faster-whisper + Ollama) is now self-hosted. Model is configurable via `OLLAMA_MODEL`; recommend `qwen2.5:7b-instruct` (the 0.5b that ships is too weak for good feedback). Backend reaches host Ollama through `host.docker.internal`. Supersedes the kickoff decision to use `claude-opus-4-8` for eval. `backend/app/evaluate.py`, [[deployment]].
 - **Deploy as a single Docker Compose stack on the school Docker host (`~/dev/TalkQuest/`).** — Matches the box's existing per-project convention (`~/dev/<name>/docker-compose.yml`, unique host port). App published on port `8118`. See [[deployment]].

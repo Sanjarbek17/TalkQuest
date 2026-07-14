@@ -15,7 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from . import anticheat, evaluate, transcribe
 from .challenges import get_todays_challenge
-from .schemas import ChallengePublic, Feedback, SubmitResponse
+from .schemas import ChallengePublic, SubmitResponse
 
 load_dotenv()
 
@@ -49,25 +49,10 @@ async def submit(audio: UploadFile = File(...)) -> SubmitResponse:
         # 2. Transcribe.
         transcript, duration = transcribe.transcribe(tmp_path)
 
-        # 3. Cheap-first anti-cheat. A missing code phrase is an automatic fail —
-        #    short-circuit before spending an LLM call (§5).
+        # 3. Cheap-first anti-cheat: does the transcript relate to the topic (§5.3)?
         checks = anticheat.run_checks(transcript, challenge)
-        if not checks.code_phrase_ok:
-            return SubmitResponse(
-                passed=False,
-                transcript=transcript,
-                checks=checks,
-                matched_elements=[],
-                feedback=Feedback(
-                    strength="You submitted a recording — that's the hardest step.",
-                    improvement=(
-                        f'Say the code phrase "{challenge.code_phrase}" out loud somewhere '
-                        "in your recording so we can verify it, then try again."
-                    ),
-                ),
-            )
 
-        # 4. Rubric evaluation via Claude (structured JSON).
+        # 4. Rubric evaluation via the local LLM (structured JSON).
         result = evaluate.evaluate(transcript, challenge, duration)
 
         return SubmitResponse(
